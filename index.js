@@ -1,6 +1,10 @@
 const {Cluster}=require('puppeteer-cluster');
 const fs=require('fs');
-const { execPath } = require('process');
+const mongoose=require('mongoose');
+const process = require('process');
+require('dotenv').config();
+
+
 
 // Defining class for stackoverflow questions using es6
 class stackoverflow_question {
@@ -16,7 +20,8 @@ class stackoverflow_question {
 
 // storing urls of first n stackoverflow question pages
 const urls = [];
-for (let i = 1; i <= 10; i++) {
+const n=5; // number of pages to be scraped
+for (let i = 1; i <= n; i++) {
   urls.push(`https://stackoverflow.com/questions?tab=newest&page=${i}`);
 }
 
@@ -85,8 +90,10 @@ const final_data = [];
 
   console.log(final_data);
 
+
   // converting the final_data array to a json file
   fs.writeFileSync('stackoverflow_questions.json', JSON.stringify(final_data));
+
 
   // converting the json file to csv file
   const json2csvParser = require('json2csv').Parser;
@@ -96,4 +103,51 @@ const final_data = [];
   });
   const csv = json2csv.parse(final_data);
   fs.writeFileSync('stackoverflow_questions.csv', csv);
+
+  
+  // connecting to mongodb atlas cluster hosted on AWS
+  // Using environment variables to store and access mongodb credentials
+  const dbURI = process.env.MONGO_URI;
+  mongoose.connect(dbURI, {
+          useNewUrlParser: true,
+          useUnifiedTopology: true
+      })
+      .then(() => {
+          console.log("connected to mongodb");
+          // Definition of schema for mongodb
+          const questionSchema = new mongoose.Schema({
+              question_id: String,
+              question_text: String,
+              question_link: String,
+              vote_count: String,
+              views: String,
+              answers: String
+          });
+          // creating a model for the schema
+          const Question = mongoose.model('question', questionSchema);
+          for (let i = 0; i < final_data.length; i++) {
+              const question_data = new Question(final_data[i]);
+              // checking if question_id is already present in database and storing only if it is not present
+              Question.findOne({
+                  question_id: question_data.question_id
+              }, (err, data) => {
+                  if (err) {
+                      console.log(err);
+                  } else if (data) {
+                      // case where question_id is already present in database, so no need to store it again
+                      console.log("question_id " + question_data.question_id + " already present in database");
+                  } else {
+                      // case where question_id is not present in database, hence storing the data
+                      question_data.save();
+                  }
+              });
+          }
+          console.log("data saved to mongodb");
+      })
+      .catch(err => {
+          console.log(err);
+          // if error occurs, the cluster will close and exit the program
+          cluster.close();
+          process.exit(1);
+      })
 })();
