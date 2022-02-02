@@ -1,7 +1,6 @@
 # stackoverflow-webcrawler-growthschool
-
-Webscraper that crawls stackoverflow questions and exports to csv, json and stores the data in mongoDB.
-This is the submission for Growthschool backend internship assignment.
+- Webscraper that crawls stackoverflow questions and exports to csv, json and stores the data in mongoDB.
+- This is the submission for Growthschool backend internship assignment.
 
 ## Functionalities
 - Asynchronous crawler
