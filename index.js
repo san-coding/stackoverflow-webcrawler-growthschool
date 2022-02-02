@@ -1,3 +1,12 @@
+/**
+ * Author:      Sandeep Rajakrishnan (sandur43@gmail.com)
+ * Created:     02.02.2022
+ * 
+ * Description: Code crawls through the latest questions on Stackoverflow and scrapes 
+ *              the question_id, question_text, question_link, vote_count, views, answers_count.
+ *              The data is then exported to a json and csv file and stored in mongoDB database.
+ **/
+
 const {Cluster}=require('puppeteer-cluster');
 const fs=require('fs');
 const mongoose=require('mongoose');
