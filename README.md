@@ -2,6 +2,9 @@
 - Webscraper that crawls stackoverflow questions and exports to csv, json and stores the data in mongoDB.
 - This is the submission for Growthschool backend internship assignment.
 
+## Video 
+Video showing the execution of the code : https://youtu.be/9Et0jAwuGak
+
 ## Functionalities
 - Asynchronous crawler
 - Maintains a concurrency of 5 requests at all times using `puppeteer-cluster`
